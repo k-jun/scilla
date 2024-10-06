@@ -1,9 +1,12 @@
 {
   "name": "scilla",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build:live",
+    "build": "tsc -p .",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\" src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -15,5 +18,12 @@
     "url": "https://github.com/k-jun/scilla/issues"
   },
   "homepage": "https://github.com/k-jun/scilla#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
 }
