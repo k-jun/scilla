@@ -1,9 +1,13 @@
 # scilla
 
-## setup
+## run
 
-ref: https://basarat.gitbook.io/typescript/project
-ref: https://typescript-jp.gitbook.io/deep-dive/nodejs
+```sh
+$ deno run src/main.ts
+```
 
-ref: https://typescript-eslint.io/getting-started
-ref: https://prettier.io/docs/en/install
+## test
+
+```sh
+$ deno test
+```
