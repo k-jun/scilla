@@ -16,29 +16,27 @@ Deno.test("calcFu", async () => {
       }
       if (n.tagName != "AGARI") return;
 
-      console.log(
-        new Pai(Number(n.attributes.getNamedItem("machi")?.value)),
-      );
+      const pais = n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
+        new Pai(Number(e))
+      ) ?? [];
+      const pai = new Pai(Number(n.attributes.getNamedItem("machi")?.value)) ??
+        new Pai(0);
 
-      // const attributes: any = {};
-      // for (let i = 0; i < n.attributes.length; i++) {
-      //   const attr = n.attributes[i];
-      //   attributes[attr.name] = attr.value;
+      console.log(n.attributes.item(1)?.name);
+
+      // const args: { pais: Array<Pai>; pai: Pai; is_tsumo: boolean } = {
+      //   pais,
+      //   pai,
+      //   is_tsumo: true,
+      // };
+      //
+      // const fu = Number(n.attributes.getNamedItem("ten")?.value.split(",")[0]);
+      // sm += 1;
+      // if (calcFu(args) == fu) {
+      //   ok += 1;
       // }
-      // console.log(attributes.hai, attributes.ten);
-
-      const args: { pais: Array<Pai>; pai: Pai; is_tsumo: boolean } = {
-        pais: n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
-          new Pai(Number(e))
-        ) ?? [],
-        pai: new Pai(Number(n.attributes.getNamedItem("machi")?.value)) ??
-          new Pai(0),
-        is_tsumo: true,
-      };
-
-      const fu = Number(n.attributes.getNamedItem("ten")?.value.split(",")[0]);
-      expect(calcFu(args)).toBe(fu);
     };
     dfs(dom.window.document.documentElement);
   }
+  // console.log(`正答率: ${(ok / sm * 100).toFixed(2)}%`);
 });

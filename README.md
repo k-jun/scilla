@@ -11,3 +11,7 @@ $ deno run src/main.ts
 ```sh
 $ deno test
 ```
+
+## ref
+
+* https://github.com/kobalab/majiang-core/tree/master
