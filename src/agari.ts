@@ -1,5 +1,5 @@
 import { Pai } from "./pai.ts";
-import { Mentsu } from "./mentsu.ts";
+import { Mentsu, MentsuKind } from "./mentsu.ts";
 
 export const NewAgaris = (
   { pais, mentsus = [], agariPai }: {
@@ -26,62 +26,114 @@ export const NewAgaris = (
     k
   );
   for (const head of heads) {
-    console.log(`head: ${head}`);
     const paisCopy = [...pais];
-    const paisDone = [];
-    // mentsu({ m: mc, agari, agaris });
+    const janto = [];
+
+    janto.push(
+      paisCopy.splice(paisCopy.findIndex((e) => e.fmt == head), 1)[0],
+    );
+    janto.push(
+      paisCopy.splice(paisCopy.findIndex((e) => e.fmt == head), 1)[0],
+    );
+    const mentsus = findMentsu({ pais: paisCopy });
+    for (const mentsu of mentsus) {
+      console.log(
+        `findMentsu: ${mentsu.map((e) => e.pais.map((e) => e.fmt)).join(",")}`,
+      );
+    }
   }
 
-  // const mentsu = (
-  //   { pais, agari, agaris }: {
-  //     pais: Array<string>;
-  //     agari: Array<string>;
-  //     agaris: Array<Array<string>>;
-  //   },
-  // ) => {
-  //   if (Object.values(m).every((e) => e == 0)) {
-  //     agaris.push(agari);
-  //     return;
-  //   }
-  //
-  //   // kotsu
-  //   const kotsus = Object.entries(m).filter(([_, v]) => v >= 3).map(([k, _]) =>
-  //     k
-  //   );
-  //   for (const k of kotsus) {
-  //     const mc = { ...m };
-  //     const ac = [...agari];
-  //     ac.push(k, k, k);
-  //     mc[k] -= 3;
-  //     mentsu({ m: mc, agari: ac, agaris });
-  //     break;
-  //   }
-  //   const shuntsukamo = Object.entries(m).filter(([k, _]) =>
-  //     k[0] != "z" && Number(k[1]) <= 7
-  //   ).map(([k, _]) => k);
-  //   const shuntsu = shuntsukamo.filter((e) => {
-  //     const nxt = e[0] + (Number(e[1]) + 1).toString();
-  //     const nxt2 = e[0] + (Number(e[1]) + 2).toString();
-  //     if (nxt in m && nxt2 in m) {
-  //       if (m[e] >= 1 && m[nxt] >= 1 && m[nxt2] >= 1) {
-  //         return true;
-  //       }
-  //     }
-  //     return false;
-  //   });
-  //   for (const s of shuntsu) {
-  //     const nxt = s[0] + (Number(s[1]) + 1).toString();
-  //     const nxt2 = s[0] + (Number(s[1]) + 2).toString();
-  //     const mc = { ...m };
-  //     const ac = [...agari];
-  //     ac.push(s, nxt, nxt2);
-  //     mc[s] -= 1;
-  //     mc[nxt] -= 1;
-  //     mc[nxt2] -= 1;
-  //     mentsu({ m: mc, agari: ac, agaris });
-  //     break;
-  //   }
   return agaris;
+};
+
+const findMentsu = ({ pais }: {
+  pais: Array<Pai>;
+}): Array<Array<Mentsu>> => {
+  const result: Array<Array<Mentsu>> = [];
+  const loop = ({ pais, done }: { pais: Array<Pai>; done: Array<Mentsu> }) => {
+    if (pais.length == 0) {
+      done = done.sort((a, b) => {
+        return a.pais[0].fmt < b.pais[0].fmt ? -1 : 1;
+      });
+      const chkDone = done.map((e) => e.pais).flat().join(",");
+
+      const chkRslt = result.map((e) => e.map((e) => e.pais).flat().join(","));
+
+      if (!chkRslt.includes(chkDone)) {
+        result.push(done);
+      }
+    }
+
+    // 刻子
+    const cnt = pais.reduce<{ [key: string]: number }>((mp, e) => {
+      mp[e.fmt] = (e.fmt in mp) ? mp[e.fmt] + 1 : 1;
+      return mp;
+    }, {});
+    let kotsu = "";
+    for (const [k, v] of Object.entries(cnt)) {
+      if (v >= 3) {
+        kotsu = k;
+        break;
+      }
+    }
+    if (kotsu != "") {
+      const paisCopy = [...pais];
+      const doneCopy = [...done];
+      const a = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == kotsu),
+        1,
+      )[0];
+      const b = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == kotsu),
+        1,
+      )[0];
+      const c = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == kotsu),
+        1,
+      )[0];
+      doneCopy.push(new Mentsu({ pais: [a, b, c], kind: MentsuKind.ANKO }));
+      loop({ pais: paisCopy, done: doneCopy });
+    }
+
+    // 順子
+    let shuntsu = "";
+    const fmts = pais.map((e) => e.fmt);
+    for (const p of pais) {
+      if (p.isJihai() || p.num >= 8) {
+        continue;
+      }
+      const pfmt = p.fmt;
+      const pn = pfmt[0] + (Number(pfmt[1]) + 1).toString();
+      const pnn = pfmt[0] + (Number(pfmt[1]) + 2).toString();
+      if (fmts.includes(pn) && fmts.includes(pnn)) {
+        shuntsu = p.fmt;
+        break;
+      }
+    }
+    if (shuntsu != "") {
+      const paisCopy = [...pais];
+      const doneCopy = [...done];
+      const shuntsuNext = shuntsu[0] + (Number(shuntsu[1]) + 1).toString();
+      const shuntsuNextNext = shuntsu[0] + (Number(shuntsu[1]) + 2).toString();
+      const a = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == shuntsu),
+        1,
+      )[0];
+      const b = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == shuntsuNext),
+        1,
+      )[0];
+      const c = paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == shuntsuNextNext),
+        1,
+      )[0];
+      doneCopy.push(new Mentsu({ pais: [a, b, c], kind: MentsuKind.ANSHUN }));
+      loop({ pais: paisCopy, done: doneCopy });
+    }
+  };
+
+  loop({ pais, done: [] });
+  return result;
 };
 
 export class Agari {
