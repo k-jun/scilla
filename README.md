@@ -3,13 +3,7 @@
 ## run
 
 ```sh
-$ deno run src/main.ts
-```
-
-## test
-
-```sh
-$ deno test
+$ deno test --allow-env --allow-read --filter Sample
 ```
 
 ## ref

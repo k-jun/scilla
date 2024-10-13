@@ -1,3 +1,3 @@
-export { Pai } from "./pai.ts";
+export { Pai, PaiKind } from "./pai.ts";
 export { Mentsu, MentsuKind } from "./mentsu.ts";
-export { AgariKei } from "./agari.ts";
+export { NewAgaris } from "./agari.ts";

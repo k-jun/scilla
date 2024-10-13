@@ -1,7 +1,7 @@
-import { Naki, NakiKind, Pai } from "../src/main.ts";
+import { Mentsu, MentsuKind, Pai } from "../src/main.ts";
 
-export const parseNaki = (m: string = ""): Array<Naki> => {
-  const parser = (m: number): Naki => {
+export const parseNaki = (m: string = ""): Array<Mentsu> => {
+  const parser = (m: number): Mentsu => {
     const kui = m & 3;
     // 0: 鳴きなし、1: 下家、2: 対面、3: 上家。
     if (m & (1 << 2)) {
@@ -26,7 +26,7 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
           break;
       }
       const pais = h.map((e) => new Pai(e));
-      return new Naki({ kind: NakiKind.CHI, pais });
+      return new Mentsu({ kind: MentsuKind.MINSHUN, pais });
     } else if (m & (1 << 3) || m & (1 << 4)) {
       // 刻子、加槓
       const extra = (m & 0x0060) >> 5;
@@ -70,14 +70,14 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
         if (kui < 3) h.unshift(h.splice(2, 1)[0]);
         if (kui < 2) h.unshift(h.splice(2, 1)[0]);
         const pais = h.map((e) => new Pai(e));
-        return new Naki({ kind: NakiKind.PON, pais });
+        return new Mentsu({ kind: MentsuKind.MINKO, pais });
       } else {
         // 加槓
         if (kui < 3) h.unshift(h.splice(2, 1)[0]);
         if (kui < 2) h.unshift(h.splice(2, 1)[0]);
         h.unshift(t + extra);
         const pais = h.map((e) => new Pai(e));
-        return new Naki({ kind: NakiKind.KAKAN, pais });
+        return new Mentsu({ kind: MentsuKind.KAKAN, pais });
       }
     } else {
       let hai0 = (m & 0xFF00) >> 8;
@@ -85,7 +85,7 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
       if (kui == 0) {
         const h = [t, t + 1, t + 2, t + 3];
         const pais = h.map((e) => new Pai(e));
-        return new Naki({ pais, kind: NakiKind.ANKAN });
+        return new Mentsu({ kind: MentsuKind.ANKAN, pais });
         // 暗槓
       } else {
         // 大明槓
@@ -124,7 +124,7 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
         }
         h.unshift(hai0);
         const pais = h.map((e) => new Pai(e));
-        return new Naki({ pais, kind: NakiKind.MINKAN });
+        return new Mentsu({ kind: MentsuKind.MINKAN, pais });
       }
     }
   };
