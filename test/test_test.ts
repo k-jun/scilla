@@ -1,8 +1,8 @@
 import { expect } from "jsr:@std/expect";
 // @deno-types="npm:@types/jsdom"
 import { JSDOM } from "npm:jsdom";
-import { calcFu, Naki, NakiKind, Pai } from "../src/main.ts";
-import { parseNaki, parseYaku } from "./utils.ts";
+import { Naki, NakiKind, Pai } from "../src/main.ts";
+import { parseNaki, parseYaku } from "./test.ts";
 
 const validPais = (
   { pais, nakis, yakus }: {
@@ -15,6 +15,11 @@ const validPais = (
   const ids = [...pais, ...nakis.map((e) => e.pais).flat()].map((e) => e.id);
   const idsSet = new Set(ids);
   if (ids.length != idsSet.size) {
+    return false;
+  }
+
+  // must have yaku
+  if (yakus.length == 0) {
     return false;
   }
 
@@ -37,7 +42,7 @@ const validPais = (
     const nakicnt = nakis.map((e) =>
       e.pais
     ).flat().filter((e) => e.val[1] == "1" || e.val[1] == "9").length;
-    if (cnt != 0) {
+    if (cnt != 0 || nakicnt != 0) {
       return false;
     }
   }
@@ -63,7 +68,9 @@ const validPais = (
   // chitoitsu
   if (yakus.includes("七対子")) {
     const x: { [key: string]: number } = {};
-    for (const e of pais.map((e) => e.valNoAka)) {
+    for (
+      const e of pais.map((e) => e.val[0] + (e.val[1] == "r" ? 5 : e.val[1]))
+    ) {
       if (e in x) {
         x[e]++;
       } else {
@@ -82,7 +89,7 @@ const validPais = (
     const x = [...pais, ...nakis.map((e) => e.pais).flat()];
     if (
       x.filter((e) =>
-        e.suit ? false : (e.num <= 3 || e.num >= 7) ? false : true
+        e.val[1] == "z" ? false : (e.num <= 3 || e.num >= 7) ? false : true
       ).length != 0
     ) {
       return false;
@@ -121,14 +128,14 @@ Deno.test("parseNaki", async () => {
         }
       }
       if (n.tagName != "AGARI") return false;
-      const attributes: any = {};
+      const attributes: { [key: string]: string } = {};
       for (let i = 0; i < n.attributes.length; i++) {
         const attr = n.attributes[i];
         attributes[attr.name] = attr.value;
       }
-      const yakus = parseYaku({
-        yaku: n.attributes.getNamedItem("yaku")?.value ?? "",
-      });
+      let yaku = n.attributes.getNamedItem("yaku")?.value ?? "";
+      yaku += n.attributes.getNamedItem("yakuman")?.value ?? "";
+      const yakus = parseYaku({ yaku });
 
       const pais = n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
         new Pai(Number(e))
@@ -141,7 +148,3 @@ Deno.test("parseNaki", async () => {
     dfs(dom.window.document.documentElement);
   }
 });
-
-// Deno.test("parseNaki", async () => {
-//   console.log(parseNaki("31008,31520,31264"));
-// });

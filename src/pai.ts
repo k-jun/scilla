@@ -1,4 +1,4 @@
-export const pais = [
+const pais = [
   "m1",
   "m1",
   "m1",
@@ -107,42 +107,82 @@ export const pais = [
   "s9",
   "s9",
   "s9",
+  "z1", // 東
   "z1",
   "z1",
   "z1",
-  "z1",
+  "z2", // 南
   "z2",
   "z2",
   "z2",
-  "z2",
+  "z3", // 西
   "z3",
   "z3",
   "z3",
-  "z3",
+  "z4", // 北
   "z4",
   "z4",
   "z4",
-  "z4",
+  "z5", // 白
   "z5",
   "z5",
   "z5",
-  "z5",
+  "z6", // 発
   "z6",
   "z6",
   "z6",
-  "z6",
-  "z7",
+  "z7", // 中
   "z7",
   "z7",
   "z7",
 ];
 
-export const paiDsp: { [key: string]: string } = {
-  "z1": "東",
-  "z2": "南",
-  "z3": "西",
-  "z4": "北",
-  "z5": "白",
-  "z6": "發",
-  "z7": "中",
-};
+export enum PaiKind {
+  MANZU = 2,
+  PINZU = 1,
+  SOUZU = 0,
+  JIHAI = 3,
+}
+
+export class Pai {
+  id: number;
+  val: string;
+
+  constructor(id: number) {
+    this.id = id;
+    this.val = pais[id];
+  }
+
+  get knd(): PaiKind {
+    switch (this.val[0]) {
+      case "m":
+        return PaiKind.MANZU;
+      case "p":
+        return PaiKind.PINZU;
+      case "s":
+        return PaiKind.SOUZU;
+      default:
+        return PaiKind.JIHAI;
+    }
+  }
+  get num(): number {
+    if (this.knd == PaiKind.JIHAI) {
+      return 0;
+    }
+    if (this.val[1] == "r") {
+      return 5;
+    }
+    return Number(this.val[1]);
+  }
+
+  get fmt(): string {
+    return this.knd + this.num.toString();
+  }
+
+  isJihai(): boolean {
+    return (this.knd == PaiKind.JIHAI) ? true : false;
+  }
+  isSuhai(): boolean {
+    return !this.isJihai;
+  }
+}

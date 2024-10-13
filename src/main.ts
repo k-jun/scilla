@@ -1,68 +1,52 @@
-export const calcFu = (
-  { pais, pai, is_tsumo }: {
-    pais: Array<Pai>;
-    pai: Pai;
-    is_tsumo: boolean;
-  },
-): number => {
-  return 40;
-};
+export { Pai } from "./pai.ts";
+export { Naki, NakiKind } from "./naki.ts";
+import { Pai } from "./pai.ts";
 
 export const isAgari = (
   { pais }: {
     pais: Array<Pai>;
   },
 ): boolean => {
+  const process = ({ pais }: { pais: { [key: string]: number } }): boolean => {
+    let flag = false;
+    // 刻子
+    const kotsu = Object.entries(cnt).filter(([_, cnt]) => cnt >= 3).map((
+      [key, _],
+    ) => key);
+    for (const k of kotsu) {
+      const paisCopy = { ...pais };
+      paisCopy[k] -= 3;
+      if (process({ pais: paisCopy })) {
+        flag = true;
+      }
+    }
+
+    const shuntsukamo = Object.entries(cnt).filter((
+      [key, cnt],
+    ) => (["p", "m", "s"].includes(key[0]) && Number(key[1]) < 8 && cnt > 0))
+      .map(([key, _]) => key);
+    // const shuntsu = shuntsukamo.filter(e => )
+
+    // 順子
+    // if (process({ pais })) {
+    //   flag = true;
+    // }
+    return flag;
+  };
+  // 雀頭候補
+  const cnt: { [key: string]: number } = {};
+  // for (const p of pais.map((e) => e.valNoAka)) {
+  //   cnt[p] = (p in cnt) ? cnt[p] + 1 : 1;
+  // }
+  // const atama = Object.entries(cnt).filter(([_, cnt]) => cnt >= 2).map((
+  //   [key, _],
+  // ) => key);
+  // console.log(atama);
+
+  // for (const a of atama) {
+  //   const cntCopy = { ...cnt };
+  //   cntCopy[a] -= 2;
+  //   return process({ pais: cntCopy });
+  // }
   return false;
 };
-
-import { paiDsp, pais } from "./constants.ts";
-
-export class Pai {
-  id: number;
-  val: string;
-
-  constructor(id: number) {
-    this.id = id;
-    this.val = pais[id];
-  }
-
-  get dsp() {
-    if (this.val[0] != "z") {
-      return this.val;
-    }
-    return paiDsp[this.val];
-  }
-
-  get valNoAka() {
-    return this.val[1] != "r" ? this.val : this.val[0] + "5";
-  }
-
-  get suit() {
-    return this.val[0];
-  }
-
-  get num() {
-    return (this.suit == "z"
-      ? 0
-      : (this.val[1] != "r" ? Number(this.val[1]) : 5));
-  }
-}
-
-export enum NakiKind {
-  CHI = 0,
-  PON = 1,
-  KAN = 2,
-  KAKAN = 3,
-  ANKAN = 4,
-  MINKAN = 5,
-}
-
-export class Naki {
-  pais: Array<Pai>;
-  kind: NakiKind;
-  constructor({ pais, kind }: { pais: Array<Pai>; kind: NakiKind }) {
-    this.pais = pais;
-    this.kind = kind;
-  }
-}

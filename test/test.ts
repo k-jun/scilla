@@ -1,4 +1,4 @@
-import { calcFu, Naki, NakiKind, Pai } from "../src/main.ts";
+import { Naki, NakiKind, Pai } from "../src/main.ts";
 
 export const parseNaki = (m: string = ""): Array<Naki> => {
   const parser = (m: number): Naki => {
@@ -7,7 +7,7 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
     if (m & (1 << 2)) {
       // 順子
       let t = (m & 0xFC00) >> 10;
-      let r = t % 3;
+      const r = t % 3;
       t = Math.floor(t / 3);
       t = Math.floor(t / 7) * 9 + t % 7;
       t *= 4;
@@ -113,12 +113,12 @@ export const parseNaki = (m: string = ""): Array<Naki> => {
             break;
         }
         if (kui == 1) {
-          let a = hai0;
+          const a = hai0;
           hai0 = h[2];
           h[2] = a;
         }
         if (kui == 2) {
-          let a = hai0;
+          const a = hai0;
           hai0 = h[0];
           h[0] = a;
         }
@@ -193,6 +193,9 @@ const yakus = [
 ];
 
 export const parseYaku = ({ yaku }: { yaku: string }): Array<string> => {
+  if (yaku == "") {
+    return [];
+  }
   const ys = yaku.split(",");
   const vs = [];
   for (let i = 0; i < ys.length; i++) {
