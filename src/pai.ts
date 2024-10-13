@@ -182,4 +182,22 @@ export class Pai {
   isSuhai(): boolean {
     return !this.isJihai;
   }
+  isYaochuHai(): boolean {
+    if (this.isJihai()) {
+      return true;
+    }
+    if (this.num == 9 || this.num == 1) {
+      return true;
+    }
+    return false;
+  }
+  isChunchanHai(): boolean {
+    return !this.isYaochuHai();
+  }
+  isSangenHai(): boolean {
+    if (["z5", "z6", "z7"].includes(this.val)) {
+      return true;
+    }
+    return false;
+  }
 }

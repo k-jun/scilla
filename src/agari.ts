@@ -35,11 +35,10 @@ export const NewAgaris = (
     janto.push(
       paisCopy.splice(paisCopy.findIndex((e) => e.fmt == head), 1)[0],
     );
-    const mentsus = findMentsu({ pais: paisCopy });
-    for (const mentsu of mentsus) {
-      console.log(
-        `findMentsu: ${mentsu.map((e) => e.pais.map((e) => e.fmt)).join(",")}`,
-      );
+    const patterns = findMentsu({ pais: paisCopy });
+    for (const anms of patterns) {
+      mentsus.push(...anms);
+      agaris.push(new Agari({ janto, mentsus, agariPai }));
     }
   }
 
@@ -151,6 +150,68 @@ export class Agari {
     this.mentsus = mentsus;
     this.agariPai = agariPai;
   }
+
+  clacFu(
+    { params }: {
+      params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
+    },
+  ) {
+    let base = 20;
+
+    for (const m of this.mentsus) {
+      let x = 0;
+      switch (m.kind) {
+        case MentsuKind.MINKO:
+          x = 2;
+          break;
+        case MentsuKind.ANKO:
+          x = 4;
+          break;
+        case MentsuKind.MINKAN || MentsuKind.KAKAN:
+          x = 8;
+          break;
+        case MentsuKind.ANKAN:
+          x = 16;
+          break;
+      }
+      if (m.pais[0].isYaochuHai()) {
+        x *= 2;
+      }
+      base += x;
+    }
+    // 雀頭
+    if (this.janto[0].isSangenHai()) {
+      base += 2;
+    }
+    if (this.janto[0].fmt == params.bakazePai.fmt) {
+      base += 2;
+    }
+    if (this.janto[0].fmt == params.jikazePai.fmt) {
+      base += 2;
+    }
+
+    // 面前
+    if (
+      this.mentsus.filter(
+          (
+            e,
+          ) =>
+            [
+              MentsuKind.KAKAN,
+              MentsuKind.MINKAN,
+              MentsuKind.MINKO,
+              MentsuKind.MINSHUN,
+            ].includes(e.kind),
+        ).length == 0 &&
+      params.isTsumo == false
+    ) {
+      base += 10;
+    }
+    if (params.isTsumo) {
+      base += 2;
+    }
+    return base;
+  }
 }
 
 class Chitoitsu extends Agari {
@@ -158,5 +219,16 @@ class Chitoitsu extends Agari {
   constructor({ pais, agariPai }: { pais: Array<Pai>; agariPai: Pai }) {
     super({ janto: [], mentsus: [], agariPai });
     this.pais = pais;
+  }
+  override clacFu(
+    { params }: {
+      params: {
+        isTsumo: boolean;
+        bakazePai: Pai;
+        jikazePai: Pai;
+      };
+    },
+  ) {
+    return 25;
   }
 }

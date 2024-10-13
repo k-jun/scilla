@@ -26,6 +26,16 @@ Deno.test("NewAgaris", async () => {
         `./test/fixtures/${d.name}/${f.name}`,
       );
       const dom = new JSDOM(text, { contentType: "text/xml" });
+
+      const kazes = [
+        new Pai(4 * 3 * 9), // 東
+        new Pai(4 * 3 * 9 + 4), // 南
+        new Pai(4 * 3 * 9 + 8), // 西
+        new Pai(4 * 3 * 9 + 12), // 北
+      ];
+      let kyoku = 0;
+      let bakaze = kazes[0];
+      let jikaze = kazes[0];
       const dfs = (n: Element) => {
         for (let i = 0; i < n.children.length; i++) {
           if (dfs(n.children[i])) break;
@@ -43,18 +53,28 @@ Deno.test("NewAgaris", async () => {
             return true;
           }
         }
-        if (n.tagName != "AGARI") return false;
-        const attributes: { [key: string]: string } = {};
-        for (let i = 0; i < n.attributes.length; i++) {
-          const attr = n.attributes[i];
-          attributes[attr.name] = attr.value;
+        if (n.tagName == "INIT") {
+          const attrs: { [key: string]: string } = {};
+          for (let i = 0; i < n.attributes.length; i++) {
+            const attr = n.attributes[i];
+            attrs[attr.name] = attr.value;
+          }
+          kyoku = Number(attrs["seed"].split(",")[0]);
+          return false;
         }
 
-        const pais = attributes["hai"].split(",").map((e: string) =>
+        if (n.tagName != "AGARI") return false;
+        const attrs: { [key: string]: string } = {};
+        for (let i = 0; i < n.attributes.length; i++) {
+          const attr = n.attributes[i];
+          attrs[attr.name] = attr.value;
+        }
+
+        const pais = attrs["hai"].split(",").map((e: string) =>
           new Pai(Number(e))
         ) ?? [];
-        const mentsus = parseNaki(attributes["m"]);
-        const agariPai = new Pai(Number(attributes["machi"]));
+        const mentsus = parseNaki(attrs["m"]);
+        const agariPai = new Pai(Number(attrs["machi"]));
         console.log(
           `pais: ${pais.map((e) => e.fmt)}, mentsus: ${
             mentsus.map((e) => e.pais.map((e) => e.fmt)).join(",")
@@ -62,7 +82,26 @@ Deno.test("NewAgaris", async () => {
         );
 
         const agaris = NewAgaris({ pais, mentsus, agariPai });
-        console.log(agaris);
+
+        const fu = Number(attrs["ten"].split(",")[0]);
+        const isTsumo = attrs["who"] == attrs["fromWho"];
+        bakaze = kazes[kyoku % 4];
+        jikaze = kazes[((Number(attrs["who"]) - kyoku % 4) + 4) % 4];
+
+        const calcFu = Math.max(
+          ...agaris.map((e) =>
+            e.clacFu({
+              params: {
+                isTsumo,
+                bakazePai: bakaze,
+                jikazePai: jikaze,
+              },
+            })
+          ),
+        );
+
+        console.log(`fu: ${fu}, calcFu: ${calcFu}`);
+        // console.log(agaris);
         //   expect(agaris.length != 0).toBe(true);
         // }
         //
@@ -72,50 +111,4 @@ Deno.test("NewAgaris", async () => {
       break;
     }
   }
-  // for await (const dirEntry of Deno.readDir("./test/fixtures/20220103/")) {
-  //   const text = await Deno.readTextFile(
-  //     `./test/fixtures/20220103/${dirEntry.name}`,
-  //   );
-  //   const dom = new JSDOM(text, { contentType: "text/xml" });
-  //
-  //   const dfs = (n: Element) => {
-  //     for (let i = 0; i < n.children.length; i++) {
-  //       if (dfs(n.children[i])) break;
-  //     }
-  //     if (n.tagName == "GO") {
-  //       const taku = Number(n.attributes.getNamedItem("type")?.value);
-  //       if (
-  //         // ありあり四麻
-  //         Boolean(taku & (1 << 4)) || Boolean(taku & (1 << 1)) ||
-  //         Boolean(taku & (1 << 2))
-  //       ) {
-  //         return true;
-  //       }
-  //     }
-  //     if (n.tagName != "AGARI") return false;
-  //     const attributes: { [key: string]: string } = {};
-  //     for (let i = 0; i < n.attributes.length; i++) {
-  //       const attr = n.attributes[i];
-  //       attributes[attr.name] = attr.value;
-  //     }
-  //
-  //     const pais = n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
-  //       new Pai(Number(e)).fmt
-  //     ) ?? [];
-  //     const nakis = parseNaki(n.attributes.getNamedItem("m")?.value);
-  //
-  //     // TODO: exclude 七対子
-  //     const yakus = parseYaku({
-  //       yaku: n.attributes.getNamedItem("yaku")?.value ?? "",
-  //     });
-  //
-  //     if (!(yakus.includes("七対子")) && yakus.length != 0) {
-  //       const agaris = AgariKei({ pais, mentsus: [] });
-  //       expect(agaris.length != 0).toBe(true);
-  //     }
-  //
-  //     return false;
-  //   };
-  //   dfs(dom.window.document.documentElement);
-  // }
 });
