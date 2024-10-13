@@ -138,10 +138,10 @@ const pais = [
 ];
 
 export enum PaiKind {
-  MANZU = 2,
-  PINZU = 1,
-  SOUZU = 0,
-  JIHAI = 3,
+  MANZU = "m",
+  PINZU = "p",
+  SOUZU = "s",
+  JIHAI = "z",
 }
 
 export class Pai {
@@ -166,9 +166,6 @@ export class Pai {
     }
   }
   get num(): number {
-    if (this.knd == PaiKind.JIHAI) {
-      return 0;
-    }
     if (this.val[1] == "r") {
       return 5;
     }

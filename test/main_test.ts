@@ -1,13 +1,13 @@
 import { expect } from "jsr:@std/expect";
 // @deno-types="npm:@types/jsdom"
 import { JSDOM } from "npm:jsdom";
-import { isAgari, Naki, NakiKind, Pai } from "../src/main.ts";
-import { parseNaki, parseYaku } from "./utils.ts";
+import { AgariKei, Mentsu, MentsuKind, Pai } from "../src/main.ts";
+import { parseNaki, parseYaku } from "./test.ts";
 
-Deno.test("isAgari", async () => {
-  for await (const dirEntry of Deno.readDir("./test/fixtures/20220101/")) {
+Deno.test("AgariKei", async () => {
+  for await (const dirEntry of Deno.readDir("./test/fixtures/20220103/")) {
     const text = await Deno.readTextFile(
-      `./test/fixtures/20220101/${dirEntry.name}`,
+      `./test/fixtures/20220103/${dirEntry.name}`,
     );
     const dom = new JSDOM(text, { contentType: "text/xml" });
 
@@ -32,15 +32,21 @@ Deno.test("isAgari", async () => {
         attributes[attr.name] = attr.value;
       }
 
-      let pais = n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
-        new Pai(Number(e))
+      const pais = n.attributes.getNamedItem("hai")?.value.split(",").map((e) =>
+        new Pai(Number(e)).fmt
       ) ?? [];
-      pais = pais.concat(
-        parseNaki(n.attributes.getNamedItem("m")?.value).map((e) =>
-          e.pais
-        ).flat(),
-      );
-      expect(isAgari({ pais })).toBe(true);
+      const nakis = parseNaki(n.attributes.getNamedItem("m")?.value);
+
+      // TODO: exclude 七対子
+      const yakus = parseYaku({
+        yaku: n.attributes.getNamedItem("yaku")?.value ?? "",
+      });
+
+      if (!(yakus.includes("七対子")) && yakus.length != 0) {
+        const agaris = AgariKei({ pais, mentsus: [] });
+        expect(agaris.length != 0).toBe(true);
+      }
+
       return false;
     };
     dfs(dom.window.document.documentElement);

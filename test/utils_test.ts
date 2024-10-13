@@ -1,13 +1,13 @@
 import { expect } from "jsr:@std/expect";
 // @deno-types="npm:@types/jsdom"
 import { JSDOM } from "npm:jsdom";
-import { Naki, NakiKind, Pai } from "../src/main.ts";
-import { parseNaki, parseYaku } from "./test.ts";
+import { Mentsu, MentsuKind, Pai } from "../src/main.ts";
+import { parseNaki, parseYaku } from "./utils.ts";
 
 const validPais = (
   { pais, nakis, yakus }: {
     pais: Array<Pai>;
-    nakis: Array<Naki>;
+    nakis: Array<Mentsu>;
     yakus: Array<string>;
   },
 ): boolean => {
@@ -31,7 +31,7 @@ const validPais = (
 
   // richi without nakis
   if (yakus.includes("立直")) {
-    if (nakis.filter((e) => e.kind != NakiKind.ANKAN).length > 0) {
+    if (nakis.filter((e) => e.kind != MentsuKind.ANKAN).length > 0) {
       return false;
     }
   }
