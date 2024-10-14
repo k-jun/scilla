@@ -165,11 +165,25 @@ export class Agari {
     this.agariPai = agariPai;
   }
 
+  machi({ pai }: { pai: Pai }): Array<MatchiKind> {
+    const mks: Array<MatchiKind> = [];
+    if (this.janto.find((e) => e.fmt == pai.fmt)) {
+      mks.push(MatchiKind.TANKIMC);
+    }
+    for (const m of this.mentsus) {
+      const k = m.machi({ pai });
+      if (k != MatchiKind.INVALID) {
+        mks.push(k);
+      }
+    }
+    return mks;
+  }
+
   clacFu({
     params,
   }: {
     params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
-  }) {
+  }): [number, boolean] {
     console.log(params);
     let base = 20;
 
@@ -179,63 +193,38 @@ export class Agari {
       !this.janto[0].isSangenHai() &&
       this.janto[0].fmt != params.bakazePai.fmt &&
       this.janto[0].fmt != params.jikazePai.fmt &&
-      this.mentsus.some((e) => e.machi({ pai: this.agariPai }) === MatchiKind.RYANMEN);
+      this.mentsus.some(
+        (e) => e.machi({ pai: this.agariPai }) === MatchiKind.RYANMEN
+      );
 
     // ピンフツモ
     if (params.isTsumo && isPinhu) {
-      return 20;
+      return [20, isPinhu];
     }
     const isMenzen = this.mentsus.every((e) =>
-      [
-        MentsuKind.ANKAN,
-        MentsuKind.ANKO,
-        MentsuKind.ANSHUN,
-      ].includes(e.kind)
+      [MentsuKind.ANKAN, MentsuKind.ANKO, MentsuKind.ANSHUN].includes(e.kind)
     );
 
     // 待ち
-    if (isPinhu) {
-
-    } else if (this.janto.map((e) => e.fmt).includes(this.agariPai.fmt)) {
-      base += 2;
-    } else {
-      const shuntsus = this.mentsus
-        .filter((e) => e.kind == MentsuKind.ANSHUN)
-        .filter((e) => e.pais.map((e) => e.fmt).includes(this.agariPai.fmt));
-
-      const kotsus = this.mentsus.filter((e) => e.kind == MentsuKind.ANKO);
-      const kotsu = kotsus.find((e) =>
-        e.pais.map((e) => e.fmt).includes(this.agariPai.fmt)
-      );
-      if (shuntsus.length != 0) {
-        const ss = shuntsus.filter((e) => {
-          const idx = e.pais
-            .map((e) => e.fmt)
-            .findIndex((e) => e == this.agariPai.fmt);
-          if (idx == 1) {
-            // 嵌張
-            return true;
-          }
-          if (idx == 0 && e.pais[1].num == 8 && e.pais[2].num == 9) {
-            // 辺張
-            return true;
-          }
-          if (idx == 2 && e.pais[0].num == 1 && e.pais[1].num == 2) {
-            // 辺張
-            return true;
-          }
-          // 両面
-          return false;
-        });
-        if (ss.length != 0) {
-          base += 2;
-        }
-      } else {
-        if (kotsu != undefined && !params.isTsumo) {
-          kotsu.kind = MentsuKind.MINKO;
+    if (!isPinhu) {
+      const machis = this.machi({ pai: this.agariPai });
+      if (machis.includes(MatchiKind.TANKIMC)) {
+        base += 2;
+      } else if (machis.includes(MatchiKind.KANCHAN)) {
+        base += 2;
+      } else if (machis.includes(MatchiKind.PENCHAN)) {
+        base += 2;
+      } else if (machis.includes(MatchiKind.RYANMEN)) {
+      } else if (machis.includes(MatchiKind.SHANPON)) {
+        const trg = this.mentsus.find(
+          (e) => e.machi({ pai: this.agariPai }) == MatchiKind.SHANPON
+        );
+        if (trg && !params.isTsumo) {
+          trg.kind = MentsuKind.MINKO;
         }
       }
     }
+
     for (const m of this.mentsus) {
       let x = 0;
       switch (m.kind) {
@@ -277,9 +266,9 @@ export class Agari {
       base += 2;
     }
 
-    const pnt = Math.floor(base / 10) * 10 + (base % 10 > 0 ? 10 : 0)
-    console.log(`4. base: ${base}`)
-    return Math.max(pnt, 30);
+    const pnt = Math.floor(base / 10) * 10 + (base % 10 > 0 ? 10 : 0);
+    console.log(`4. base: ${base}`);
+    return [Math.max(pnt, 30), isPinhu];
   }
 }
 
@@ -297,7 +286,7 @@ class Chitoitsu extends Agari {
       bakazePai: Pai;
       jikazePai: Pai;
     };
-  }) {
-    return 25;
+  }): [number, boolean] {
+    return [25, false];
   }
 }

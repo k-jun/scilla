@@ -91,18 +91,23 @@ Deno.test("NewAgaris", async () => {
         const yakus = parseYaku({ yaku: attrs["yaku"] ?? attrs["yakuman"] });
         console.log(`yakus: ${yakus}`);
 
-        const calcFu = Math.max(
-          ...agaris.map((e) =>
-            e.clacFu({
-              params: {
-                isTsumo,
-                bakazePai: bakaze,
-                jikazePai: jikaze,
-              },
-            })
-          )
-        );
-
+        const calcFuPinhuOk: Array<number> = [];
+        const calcFuPinhuNg: Array<number> = [];
+        agaris.forEach((e) => {
+          const [pnt, isPinhu] = e.clacFu({
+            params: {
+              isTsumo,
+              bakazePai: bakaze,
+              jikazePai: jikaze,
+            },
+          });
+          if (isPinhu) {
+            calcFuPinhuOk.push(pnt);
+          } else {
+            calcFuPinhuNg.push(pnt);
+          }
+        });
+        const calcFu = (calcFuPinhuOk.length > 0) ? Math.max(0, ...calcFuPinhuOk) : Math.max(0, ...calcFuPinhuNg)
         expect(calcFu).toBe(fu);
         // console.log(agaris);
         //   expect(agaris.length != 0).toBe(true);
