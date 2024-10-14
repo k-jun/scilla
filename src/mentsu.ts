@@ -12,7 +12,7 @@ export enum MentsuKind {
   KAKAN = 7,
 }
 
-export enum MatchiKind {
+export enum MachiKind {
   INVALID = 0,
   RYANMEN = 1,
   KANCHAN = 2,
@@ -31,7 +31,7 @@ export class Mentsu {
   }
 
   // 0: 待ち無し、1: 両面、2: 嵌張、3: 辺張
-  machi({ pai }: { pai: Pai }): MatchiKind {
+  machi({ pai }: { pai: Pai }): MachiKind {
     if (
       [
         MentsuKind.KAKAN,
@@ -41,27 +41,27 @@ export class Mentsu {
         MentsuKind.ANKAN,
       ].includes(this.kind)
     ) {
-      return MatchiKind.INVALID;
+      return MachiKind.INVALID;
     }
     const idx = this.pais.findIndex((e) => e.fmt == pai.fmt);
     if (idx != -1 && this.kind == MentsuKind.ANKO) {
-      return MatchiKind.SHANPON
+      return MachiKind.SHANPON
     }
     switch (idx) {
       case 0:
         if (this.pais[1].num == 8 && this.pais[2].num == 9 && pai.num == 7) {
-          return MatchiKind.PENCHAN;
+          return MachiKind.PENCHAN;
         }
-        return MatchiKind.RYANMEN;
+        return MachiKind.RYANMEN;
       case 1:
-        return MatchiKind.KANCHAN;
+        return MachiKind.KANCHAN;
       case 2:
         if (pai.num == 3 && this.pais[0].num == 1 && this.pais[1].num == 2) {
-          return MatchiKind.PENCHAN;
+          return MachiKind.PENCHAN;
         }
-        return MatchiKind.RYANMEN;
+        return MachiKind.RYANMEN;
       default:
-        return MatchiKind.INVALID;
+        return MachiKind.INVALID;
     }
   }
 }

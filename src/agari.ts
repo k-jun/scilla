@@ -1,5 +1,5 @@
 import { Pai } from "./pai.ts";
-import { Mentsu, MentsuKind, MatchiKind } from "./mentsu.ts";
+import { Mentsu, MentsuKind, MachiKind } from "./mentsu.ts";
 
 export const NewAgaris = ({
   pais,
@@ -165,21 +165,21 @@ export class Agari {
     this.agariPai = agariPai;
   }
 
-  machi({ pai }: { pai: Pai }): Array<MatchiKind> {
-    const mks: Array<MatchiKind> = [];
+  machi({ pai }: { pai: Pai }): Array<MachiKind> {
+    const mks: Array<MachiKind> = [];
     if (this.janto.find((e) => e.fmt == pai.fmt)) {
-      mks.push(MatchiKind.TANKIMC);
+      mks.push(MachiKind.TANKIMC);
     }
     for (const m of this.mentsus) {
       const k = m.machi({ pai });
-      if (k != MatchiKind.INVALID) {
+      if (k != MachiKind.INVALID) {
         mks.push(k);
       }
     }
     return mks;
   }
 
-  clacFu({
+  calcFu({
     params,
   }: {
     params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
@@ -194,7 +194,7 @@ export class Agari {
       this.janto[0].fmt != params.bakazePai.fmt &&
       this.janto[0].fmt != params.jikazePai.fmt &&
       this.mentsus.some(
-        (e) => e.machi({ pai: this.agariPai }) === MatchiKind.RYANMEN
+        (e) => e.machi({ pai: this.agariPai }) === MachiKind.RYANMEN
       );
 
     // ピンフツモ
@@ -208,16 +208,16 @@ export class Agari {
     // 待ち
     if (!isPinhu) {
       const machis = this.machi({ pai: this.agariPai });
-      if (machis.includes(MatchiKind.TANKIMC)) {
+      if (machis.includes(MachiKind.TANKIMC)) {
         base += 2;
-      } else if (machis.includes(MatchiKind.KANCHAN)) {
+      } else if (machis.includes(MachiKind.KANCHAN)) {
         base += 2;
-      } else if (machis.includes(MatchiKind.PENCHAN)) {
+      } else if (machis.includes(MachiKind.PENCHAN)) {
         base += 2;
-      } else if (machis.includes(MatchiKind.RYANMEN)) {
-      } else if (machis.includes(MatchiKind.SHANPON)) {
+      } else if (machis.includes(MachiKind.RYANMEN)) {
+      } else if (machis.includes(MachiKind.SHANPON)) {
         const trg = this.mentsus.find(
-          (e) => e.machi({ pai: this.agariPai }) == MatchiKind.SHANPON
+          (e) => e.machi({ pai: this.agariPai }) == MachiKind.SHANPON
         );
         if (trg && !params.isTsumo) {
           trg.kind = MentsuKind.MINKO;
@@ -278,7 +278,7 @@ class Chitoitsu extends Agari {
     super({ janto: [], mentsus: [], agariPai });
     this.pais = pais;
   }
-  override clacFu({
+  override calcFu({
     params,
   }: {
     params: {

@@ -94,7 +94,7 @@ Deno.test("NewAgaris", async () => {
         const calcFuPinhuOk: Array<number> = [];
         const calcFuPinhuNg: Array<number> = [];
         agaris.forEach((e) => {
-          const [pnt, isPinhu] = e.clacFu({
+          const [pnt, isPinhu] = e.calcFu({
             params: {
               isTsumo,
               bakazePai: bakaze,
