@@ -18,7 +18,6 @@ export const NewAgaris = (
   // 七対子
   if (Object.values(cnt).every((e) => e == 2)) {
     agaris.push(new Chitoitsu({ pais, agariPai }));
-    return agaris;
   }
 
   // head
@@ -156,7 +155,105 @@ export class Agari {
       params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
     },
   ) {
+    console.log(params);
     let base = 20;
+
+    // ピンフツモ
+    if (
+      params.isTsumo &&
+      this.mentsus.filter((e) => e.kind == MentsuKind.ANSHUN).length == 4
+    ) {
+      // 待ち
+      const ss = this.mentsus.filter((e) => {
+        const idx = e.pais.map((e) => e.fmt).findIndex((e) =>
+          e == this.agariPai.fmt
+        );
+        if (idx == -1) {
+          return false;
+        }
+        if (idx == 1) {
+          // 嵌張
+          return false;
+        }
+        if (idx == 0 && e.pais[1].num == 8 && e.pais[2].num == 9) {
+          // 辺張
+          return false;
+        }
+        if (idx == 2 && e.pais[0].num == 1 && e.pais[1].num == 2) {
+          // 辺張
+          return false;
+        }
+        // 両面
+        return true;
+      });
+      if (ss.length != 0) {
+        const pais = [...this.janto];
+        for (const m of this.mentsus) {
+          pais.push(...m.pais);
+        }
+        if (
+          pais.filter((e) =>
+            !e.isSangenHai() && e.fmt != params.bakazePai.fmt &&
+            e.fmt != params.jikazePai.fmt
+          ).length == pais.length
+        ) {
+          return 20;
+        }
+      }
+    }
+
+    const isMenzen = this.mentsus.filter(
+      (
+        e,
+      ) =>
+        [
+          MentsuKind.KAKAN,
+          MentsuKind.MINKAN,
+          MentsuKind.MINKO,
+          MentsuKind.MINSHUN,
+        ].includes(e.kind),
+    ).length == 0;
+
+    // 待ち
+    if (this.janto.map((e) => e.fmt).includes(this.agariPai.fmt)) {
+      base += 2;
+    } else {
+      const shuntsus = this.mentsus.filter((e) => e.kind == MentsuKind.ANSHUN)
+        .filter((e) => e.pais.map((e) => e.fmt).includes(this.agariPai.fmt));
+
+      const kotsus = this.mentsus.filter((e) => e.kind == MentsuKind.ANKO);
+      const kotsu = kotsus.find((e) =>
+        e.pais.map((e) => e.fmt).includes(this.agariPai.fmt)
+      );
+      if (shuntsus.length != 0) {
+        const ss = shuntsus.filter((e) => {
+          const idx = e.pais.map((e) => e.fmt).findIndex((e) =>
+            e == this.agariPai.fmt
+          );
+          if (idx == 1) {
+            // 嵌張
+            return true;
+          }
+          if (idx == 0 && e.pais[1].num == 8 && e.pais[2].num == 9) {
+            // 辺張
+            return true;
+          }
+          if (idx == 2 && e.pais[0].num == 1 && e.pais[1].num == 2) {
+            // 辺張
+            return true;
+          }
+          // 両面
+          return false;
+        });
+        if (ss.length != 0) {
+          base += 2;
+        }
+      } else {
+        if (kotsu != undefined && !params.isTsumo) {
+          kotsu.kind = MentsuKind.MINKO;
+        }
+      }
+    }
 
     for (const m of this.mentsus) {
       let x = 0;
@@ -191,26 +288,16 @@ export class Agari {
     }
 
     // 面前
-    if (
-      this.mentsus.filter(
-          (
-            e,
-          ) =>
-            [
-              MentsuKind.KAKAN,
-              MentsuKind.MINKAN,
-              MentsuKind.MINKO,
-              MentsuKind.MINSHUN,
-            ].includes(e.kind),
-        ).length == 0 &&
-      params.isTsumo == false
-    ) {
+    if (isMenzen && params.isTsumo == false) {
       base += 10;
     }
     if (params.isTsumo) {
       base += 2;
     }
-    return base;
+
+    console.log(`base: ${base}`);
+
+    return (Math.floor(base / 10) * 10) + ((base % 10 > 0) ? 10 : 0);
   }
 }
 

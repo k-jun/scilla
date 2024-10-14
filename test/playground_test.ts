@@ -60,6 +60,7 @@ Deno.test("NewAgaris", async () => {
             attrs[attr.name] = attr.value;
           }
           kyoku = Number(attrs["seed"].split(",")[0]);
+          console.log(`seed: ${attrs["seed"]}`);
           return false;
         }
 
@@ -85,8 +86,10 @@ Deno.test("NewAgaris", async () => {
 
         const fu = Number(attrs["ten"].split(",")[0]);
         const isTsumo = attrs["who"] == attrs["fromWho"];
-        bakaze = kazes[kyoku % 4];
+        bakaze = kazes[Math.floor(kyoku / 4)];
         jikaze = kazes[((Number(attrs["who"]) - kyoku % 4) + 4) % 4];
+        const yakus = parseYaku({ yaku: attrs["yaku"] });
+        console.log(`yakus: ${yakus}`);
 
         const calcFu = Math.max(
           ...agaris.map((e) =>
@@ -100,7 +103,7 @@ Deno.test("NewAgaris", async () => {
           ),
         );
 
-        console.log(`fu: ${fu}, calcFu: ${calcFu}`);
+        expect(calcFu).toBe(fu);
         // console.log(agaris);
         //   expect(agaris.length != 0).toBe(true);
         // }
@@ -108,7 +111,6 @@ Deno.test("NewAgaris", async () => {
         // return false;
       };
       dfs(dom.window.document.documentElement);
-      break;
     }
   }
 });
