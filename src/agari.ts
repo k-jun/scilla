@@ -184,7 +184,6 @@ export class Agari {
   }: {
     params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
   }): [number, boolean] {
-    console.log(params);
     let base = 20;
 
     // ピンフ判定
@@ -267,7 +266,6 @@ export class Agari {
     }
 
     const pnt = Math.floor(base / 10) * 10 + (base % 10 > 0 ? 10 : 0);
-    console.log(`4. base: ${base}`);
     return [Math.max(pnt, 30), isPinhu];
   }
 }

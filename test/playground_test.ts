@@ -19,7 +19,7 @@ Deno.test("Sample", async () => {
   }
 });
 
-Deno.test("NewAgaris", async () => {
+Deno.test("calcFu", async () => {
   for await (const d of Deno.readDir("./test/fixtures/")) {
     for await (const f of Deno.readDir(`./test/fixtures/${d.name}`)) {
       const text = await Deno.readTextFile(
@@ -60,7 +60,6 @@ Deno.test("NewAgaris", async () => {
             attrs[attr.name] = attr.value;
           }
           kyoku = Number(attrs["seed"].split(",")[0]);
-          console.log(`seed: ${attrs["seed"]}`);
           return false;
         }
 
@@ -75,22 +74,12 @@ Deno.test("NewAgaris", async () => {
           attrs["hai"].split(",").map((e: string) => new Pai(Number(e))) ?? [];
         const mentsus = parseNaki(attrs["m"]);
         const agariPai = new Pai(Number(attrs["machi"]));
-        console.log(
-          `pais: ${pais.map((e) => e.fmt)}, mentsus: ${mentsus
-            .map((e) => e.pais.map((e) => e.fmt))
-            .join(",")}, agariPai: ${agariPai.fmt}`
-        );
-
         const agaris = NewAgaris({ pais, mentsus, agariPai });
 
         const fu = Number(attrs["ten"].split(",")[0]);
         const isTsumo = attrs["who"] == attrs["fromWho"];
         bakaze = kazes[Math.floor(kyoku / 4)];
         jikaze = kazes[(Number(attrs["who"]) - (kyoku % 4) + 4) % 4];
-
-        const yakus = parseYaku({ yaku: attrs["yaku"] ?? attrs["yakuman"] });
-        console.log(`yakus: ${yakus}`);
-
         const calcFuPinhuOk: Array<number> = [];
         const calcFuPinhuNg: Array<number> = [];
         agaris.forEach((e) => {
@@ -109,11 +98,6 @@ Deno.test("NewAgaris", async () => {
         });
         const calcFu = (calcFuPinhuOk.length > 0) ? Math.max(0, ...calcFuPinhuOk) : Math.max(0, ...calcFuPinhuNg)
         expect(calcFu).toBe(fu);
-        // console.log(agaris);
-        //   expect(agaris.length != 0).toBe(true);
-        // }
-        //
-        // return false;
       };
       dfs(dom.window.document.documentElement);
     }

@@ -20,5 +20,4 @@ Deno.test("AgariKei", async () => {
   ];
   const pais = paiStrs.map((e) => PaiParse(e));
   const agaris = NewAgaris({ pais, mentsus: [], agariPai: PaiParse("s9") });
-  console.log(agaris)
 });

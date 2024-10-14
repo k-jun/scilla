@@ -145,7 +145,6 @@ export enum PaiKind {
 }
 
 export const PaiParse = (str: string) => {
-  console.log(str)
   const typ = str[0]
   const num = str[1] == "r" ? "5" : str[1]
 
