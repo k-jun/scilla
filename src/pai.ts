@@ -185,6 +185,22 @@ export class Pai {
     return this.knd + this.num.toString();
   }
 
+  get dsp(): string {
+    if (this.knd != PaiKind.JIHAI) {
+      return this.val
+    }
+    const mapper: {[key:string]: string} = {
+      "z1": "東",
+      "z2": "南",
+      "z3": "西",
+      "z4": "北",
+      "z5": "白",
+      "z6": "発",
+      "z7": "中",
+    }
+    return mapper[this.val]
+  }
+
   isJihai(): boolean {
     return this.knd == PaiKind.JIHAI ? true : false;
   }

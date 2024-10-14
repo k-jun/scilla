@@ -4,11 +4,9 @@ export enum MentsuKind {
   MINSHUN = 1,
   MINKO = 2,
   MINKAN = 3,
-
   ANSHUN = 4,
   ANKO = 5,
   ANKAN = 6,
-
   KAKAN = 7,
 }
 
@@ -30,7 +28,6 @@ export class Mentsu {
     this.kind = kind;
   }
 
-  // 0: 待ち無し、1: 両面、2: 嵌張、3: 辺張
   machi({ pai }: { pai: Pai }): MachiKind {
     if (
       [

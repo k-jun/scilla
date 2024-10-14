@@ -18,7 +18,7 @@ export const NewAgaris = ({
   }, {});
 
   // 七対子
-  if (Object.values(cnt).every((e) => e == 2)) {
+  if (Object.values(cnt).every((e) => e == 2) && mentsus.length == 0) {
     agaris.push(new Chitoitsu({ pais, agariPai }));
   }
 
@@ -165,18 +165,47 @@ export class Agari {
     this.agariPai = agariPai;
   }
 
-  machi({ pai }: { pai: Pai }): Array<MachiKind> {
-    const mks: Array<MachiKind> = [];
-    if (this.janto.find((e) => e.fmt == pai.fmt)) {
-      mks.push(MachiKind.TANKIMC);
+  calcHan({
+    params,
+  }: {
+    params: {
+      isTsumo: boolean;
+      isRiichi: boolean;
+      isIppatsu: boolean;
+      bakazePai: Pai;
+      jikazePai: Pai;
+    };
+  }): Array<string> {
+
+    console.log(params)
+
+    let yakus: Array<string> = [];
+    if (params.isRiichi) {
+      yakus.push("立直");
     }
-    for (const m of this.mentsus) {
-      const k = m.machi({ pai });
-      if (k != MachiKind.INVALID) {
-        mks.push(k);
-      }
+
+    if (params.isIppatsu) {
+      yakus.push("一発");
     }
-    return mks;
+    const kotsus = this.mentsus.filter((e) =>
+      [
+        MentsuKind.ANKAN,
+        MentsuKind.ANKO,
+        MentsuKind.MINKAN,
+        MentsuKind.MINKO,
+        MentsuKind.KAKAN,
+      ].includes(e.kind)
+    );
+
+    if (kotsus.find(e => e.pais[0].fmt == params.bakazePai.fmt)) {
+      const x = kotsus.find(e => e.pais[0].fmt == params.bakazePai.fmt)
+      yakus.push(`場風 ${x?.pais[0].dsp}`);
+    }
+    if (kotsus.find(e => e.pais[0].fmt == params.jikazePai.fmt)) {
+      const x = kotsus.find(e => e.pais[0].fmt == params.jikazePai.fmt)
+      yakus.push(`自風 ${x?.pais[0].dsp}`);
+    }
+    return yakus;
   }
 
   calcFu({
@@ -267,6 +296,19 @@ export class Agari {
 
     const pnt = Math.floor(base / 10) * 10 + (base % 10 > 0 ? 10 : 0);
     return [Math.max(pnt, 30), isPinhu];
+  }
+  machi({ pai }: { pai: Pai }): Array<MachiKind> {
+    const mks: Array<MachiKind> = [];
+    if (this.janto.find((e) => e.fmt == pai.fmt)) {
+      mks.push(MachiKind.TANKIMC);
+    }
+    for (const m of this.mentsus) {
+      const k = m.machi({ pai });
+      if (k != MachiKind.INVALID) {
+        mks.push(k);
+      }
+    }
+    return mks;
   }
 }
 
