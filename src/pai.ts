@@ -144,6 +144,16 @@ export enum PaiKind {
   JIHAI = "z",
 }
 
+export const PaiParse = (str: string) => {
+  console.log(str)
+  const typ = str[0]
+  const num = str[1] == "r" ? "5" : str[1]
+
+  const typIdx = ["m", "p", "s", "z"].findIndex(e => e == typ)
+  const numIdx = Number(num) -1
+  return new Pai(4 * (typIdx * 9 + numIdx))
+};
+
 export class Pai {
   id: number;
   val: string;
@@ -177,7 +187,7 @@ export class Pai {
   }
 
   isJihai(): boolean {
-    return (this.knd == PaiKind.JIHAI) ? true : false;
+    return this.knd == PaiKind.JIHAI ? true : false;
   }
   isSuhai(): boolean {
     return !this.isJihai;

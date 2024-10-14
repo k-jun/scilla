@@ -1,23 +1,24 @@
-// import { expect } from "jsr:@std/expect";
-// import { Mentsu, MentsuKind, NewAgaris, Pai } from "../src/main.ts";
-//
-// Deno.test("AgariKei", async () => {
-//   const pais: Array<Pai> = [
-//     // "m1",
-//     // "m2",
-//     // "m3",
-//     // "p5",
-//     // "p5",
-//     // "s3",
-//     // "s4",
-//     // "s5",
-//     // "s6",
-//     // "s6",
-//     // "s6",
-//     // "z5",
-//     // "z5",
-//     // "z5",
-//   ];
-//   const agaris = NewAgaris({ pais, mentsus: [] });
-//   expect(agaris.length != 0).toBe(true);
-// });
+import { expect } from "jsr:@std/expect";
+import { Mentsu, MentsuKind, NewAgaris, Pai, PaiParse } from "../src/main.ts";
+
+Deno.test("AgariKei", async () => {
+  const paiStrs: Array<string> = [
+    "m2",
+    "m2",
+    "m3",
+    "m3",
+    "m4",
+    "m4",
+    "m5",
+    "m5",
+    "p1",
+    "p1",
+    "p1",
+    "s7",
+    "s8",
+    "s9",
+  ];
+  const pais = paiStrs.map((e) => PaiParse(e));
+  const agaris = NewAgaris({ pais, mentsus: [], agariPai: PaiParse("s9") });
+  console.log(agaris)
+});

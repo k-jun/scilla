@@ -1,17 +1,19 @@
 import { Pai } from "./pai.ts";
-import { Mentsu, MentsuKind } from "./mentsu.ts";
+import { Mentsu, MentsuKind, MatchiKind } from "./mentsu.ts";
 
-export const NewAgaris = (
-  { pais, mentsus = [], agariPai }: {
-    pais: Array<Pai>;
-    mentsus: Array<Mentsu>;
-    agariPai: Pai;
-  },
-): Array<Agari> => {
+export const NewAgaris = ({
+  pais,
+  mentsus = [],
+  agariPai,
+}: {
+  pais: Array<Pai>;
+  mentsus: Array<Mentsu>;
+  agariPai: Pai;
+}): Array<Agari> => {
   const agaris: Array<Agari> = [];
 
   const cnt = pais.reduce<{ [key: string]: number }>((mp, e) => {
-    mp[e.fmt] = (e.fmt in mp) ? mp[e.fmt] + 1 : 1;
+    mp[e.fmt] = e.fmt in mp ? mp[e.fmt] + 1 : 1;
     return mp;
   }, {});
 
@@ -21,41 +23,52 @@ export const NewAgaris = (
   }
 
   // head
-  const heads = Object.entries(cnt).filter(([_, v]) => v >= 2).map(([k, _]) =>
-    k
-  );
+  const heads = Object.entries(cnt)
+    .filter(([_, v]) => v >= 2)
+    .map(([k, _]) => k);
   for (const head of heads) {
     const paisCopy = [...pais];
-    const janto = [];
-
+    const janto: Array<Pai> = [];
     janto.push(
-      paisCopy.splice(paisCopy.findIndex((e) => e.fmt == head), 1)[0],
+      paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == head),
+        1
+      )[0]
     );
     janto.push(
-      paisCopy.splice(paisCopy.findIndex((e) => e.fmt == head), 1)[0],
+      paisCopy.splice(
+        paisCopy.findIndex((e) => e.fmt == head),
+        1
+      )[0]
     );
     const patterns = findMentsu({ pais: paisCopy });
     for (const anms of patterns) {
-      mentsus.push(...anms);
-      agaris.push(new Agari({ janto, mentsus, agariPai }));
+      const mentsusCopy = [...mentsus, ...anms];
+      agaris.push(new Agari({ janto, mentsus: mentsusCopy, agariPai }));
     }
   }
 
   return agaris;
 };
 
-const findMentsu = ({ pais }: {
-  pais: Array<Pai>;
-}): Array<Array<Mentsu>> => {
+const findMentsu = ({ pais }: { pais: Array<Pai> }): Array<Array<Mentsu>> => {
   const result: Array<Array<Mentsu>> = [];
   const loop = ({ pais, done }: { pais: Array<Pai>; done: Array<Mentsu> }) => {
     if (pais.length == 0) {
       done = done.sort((a, b) => {
         return a.pais[0].fmt < b.pais[0].fmt ? -1 : 1;
       });
-      const chkDone = done.map((e) => e.pais).flat().join(",");
+      const chkDone = done
+        .map((e) => e.pais)
+        .flat()
+        .join(",");
 
-      const chkRslt = result.map((e) => e.map((e) => e.pais).flat().join(","));
+      const chkRslt = result.map((e) =>
+        e
+          .map((e) => e.pais)
+          .flat()
+          .join(",")
+      );
 
       if (!chkRslt.includes(chkDone)) {
         result.push(done);
@@ -64,7 +77,7 @@ const findMentsu = ({ pais }: {
 
     // 刻子
     const cnt = pais.reduce<{ [key: string]: number }>((mp, e) => {
-      mp[e.fmt] = (e.fmt in mp) ? mp[e.fmt] + 1 : 1;
+      mp[e.fmt] = e.fmt in mp ? mp[e.fmt] + 1 : 1;
       return mp;
     }, {});
     let kotsu = "";
@@ -79,15 +92,15 @@ const findMentsu = ({ pais }: {
       const doneCopy = [...done];
       const a = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == kotsu),
-        1,
+        1
       )[0];
       const b = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == kotsu),
-        1,
+        1
       )[0];
       const c = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == kotsu),
-        1,
+        1
       )[0];
       doneCopy.push(new Mentsu({ pais: [a, b, c], kind: MentsuKind.ANKO }));
       loop({ pais: paisCopy, done: doneCopy });
@@ -115,15 +128,15 @@ const findMentsu = ({ pais }: {
       const shuntsuNextNext = shuntsu[0] + (Number(shuntsu[1]) + 2).toString();
       const a = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == shuntsu),
-        1,
+        1
       )[0];
       const b = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == shuntsuNext),
-        1,
+        1
       )[0];
       const c = paisCopy.splice(
         paisCopy.findIndex((e) => e.fmt == shuntsuNextNext),
-        1,
+        1
       )[0];
       doneCopy.push(new Mentsu({ pais: [a, b, c], kind: MentsuKind.ANSHUN }));
       loop({ pais: paisCopy, done: doneCopy });
@@ -138,87 +151,56 @@ export class Agari {
   janto: Array<Pai>;
   mentsus: Array<Mentsu>;
   agariPai: Pai;
-  constructor(
-    { janto, mentsus, agariPai }: {
-      janto: Array<Pai>;
-      mentsus: Array<Mentsu>;
-      agariPai: Pai;
-    },
-  ) {
+  constructor({
+    janto,
+    mentsus,
+    agariPai,
+  }: {
+    janto: Array<Pai>;
+    mentsus: Array<Mentsu>;
+    agariPai: Pai;
+  }) {
     this.janto = janto;
     this.mentsus = mentsus;
     this.agariPai = agariPai;
   }
 
-  clacFu(
-    { params }: {
-      params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
-    },
-  ) {
+  clacFu({
+    params,
+  }: {
+    params: { isTsumo: boolean; bakazePai: Pai; jikazePai: Pai };
+  }) {
     console.log(params);
     let base = 20;
 
-    // ピンフツモ
-    if (
-      params.isTsumo &&
-      this.mentsus.filter((e) => e.kind == MentsuKind.ANSHUN).length == 4
-    ) {
-      // 待ち
-      const ss = this.mentsus.filter((e) => {
-        const idx = e.pais.map((e) => e.fmt).findIndex((e) =>
-          e == this.agariPai.fmt
-        );
-        if (idx == -1) {
-          return false;
-        }
-        if (idx == 1) {
-          // 嵌張
-          return false;
-        }
-        if (idx == 0 && e.pais[1].num == 8 && e.pais[2].num == 9) {
-          // 辺張
-          return false;
-        }
-        if (idx == 2 && e.pais[0].num == 1 && e.pais[1].num == 2) {
-          // 辺張
-          return false;
-        }
-        // 両面
-        return true;
-      });
-      if (ss.length != 0) {
-        const pais = [...this.janto];
-        for (const m of this.mentsus) {
-          pais.push(...m.pais);
-        }
-        if (
-          pais.filter((e) =>
-            !e.isSangenHai() && e.fmt != params.bakazePai.fmt &&
-            e.fmt != params.jikazePai.fmt
-          ).length == pais.length
-        ) {
-          return 20;
-        }
-      }
-    }
+    // ピンフ判定
+    const isPinhu =
+      this.mentsus.every((e) => e.kind == MentsuKind.ANSHUN) &&
+      !this.janto[0].isSangenHai() &&
+      this.janto[0].fmt != params.bakazePai.fmt &&
+      this.janto[0].fmt != params.jikazePai.fmt &&
+      this.mentsus.some((e) => e.machi({ pai: this.agariPai }) === MatchiKind.RYANMEN);
 
-    const isMenzen = this.mentsus.filter(
-      (
-        e,
-      ) =>
-        [
-          MentsuKind.KAKAN,
-          MentsuKind.MINKAN,
-          MentsuKind.MINKO,
-          MentsuKind.MINSHUN,
-        ].includes(e.kind),
-    ).length == 0;
+    // ピンフツモ
+    if (params.isTsumo && isPinhu) {
+      return 20;
+    }
+    const isMenzen = this.mentsus.every((e) =>
+      [
+        MentsuKind.ANKAN,
+        MentsuKind.ANKO,
+        MentsuKind.ANSHUN,
+      ].includes(e.kind)
+    );
 
     // 待ち
-    if (this.janto.map((e) => e.fmt).includes(this.agariPai.fmt)) {
+    if (isPinhu) {
+
+    } else if (this.janto.map((e) => e.fmt).includes(this.agariPai.fmt)) {
       base += 2;
     } else {
-      const shuntsus = this.mentsus.filter((e) => e.kind == MentsuKind.ANSHUN)
+      const shuntsus = this.mentsus
+        .filter((e) => e.kind == MentsuKind.ANSHUN)
         .filter((e) => e.pais.map((e) => e.fmt).includes(this.agariPai.fmt));
 
       const kotsus = this.mentsus.filter((e) => e.kind == MentsuKind.ANKO);
@@ -227,9 +209,9 @@ export class Agari {
       );
       if (shuntsus.length != 0) {
         const ss = shuntsus.filter((e) => {
-          const idx = e.pais.map((e) => e.fmt).findIndex((e) =>
-            e == this.agariPai.fmt
-          );
+          const idx = e.pais
+            .map((e) => e.fmt)
+            .findIndex((e) => e == this.agariPai.fmt);
           if (idx == 1) {
             // 嵌張
             return true;
@@ -254,7 +236,6 @@ export class Agari {
         }
       }
     }
-
     for (const m of this.mentsus) {
       let x = 0;
       switch (m.kind) {
@@ -264,7 +245,8 @@ export class Agari {
         case MentsuKind.ANKO:
           x = 4;
           break;
-        case MentsuKind.MINKAN || MentsuKind.KAKAN:
+        case MentsuKind.MINKAN:
+        case MentsuKind.KAKAN:
           x = 8;
           break;
         case MentsuKind.ANKAN:
@@ -288,16 +270,16 @@ export class Agari {
     }
 
     // 面前
-    if (isMenzen && params.isTsumo == false) {
+    if (isMenzen && !params.isTsumo) {
       base += 10;
     }
     if (params.isTsumo) {
       base += 2;
     }
 
-    console.log(`base: ${base}`);
-
-    return (Math.floor(base / 10) * 10) + ((base % 10 > 0) ? 10 : 0);
+    const pnt = Math.floor(base / 10) * 10 + (base % 10 > 0 ? 10 : 0)
+    console.log(`4. base: ${base}`)
+    return Math.max(pnt, 30);
   }
 }
 
@@ -307,15 +289,15 @@ class Chitoitsu extends Agari {
     super({ janto: [], mentsus: [], agariPai });
     this.pais = pais;
   }
-  override clacFu(
-    { params }: {
-      params: {
-        isTsumo: boolean;
-        bakazePai: Pai;
-        jikazePai: Pai;
-      };
-    },
-  ) {
+  override clacFu({
+    params,
+  }: {
+    params: {
+      isTsumo: boolean;
+      bakazePai: Pai;
+      jikazePai: Pai;
+    };
+  }) {
     return 25;
   }
 }
